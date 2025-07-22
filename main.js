@@ -40,11 +40,27 @@ function handleCommand(cmd) {
         writeLine("  No tasks.");
         return;
       }
-      tasks.forEach((t, i) => {
-        if (!showAll && t.done) return;
-        const status = showAll ? ` [${t.done ? "✓" : "✗"}]` : "";
-        writeLine(`  ${i + 1}. ${t.description}${status}`);
-      });
+
+      if (showAll) {
+        writeLine("ID  Task                         Created            Done");
+        tasks.forEach((t, i) => {
+          const id = (i + 1).toString().padEnd(3);
+          const desc = t.description.padEnd(28);
+          const created = formatRelativeTime(t.createdAt).padEnd(18);
+          const done = t.done ? "true" : "false";
+          writeLine(`${id}${desc}${created}${done}`);
+        });
+      } else {
+        writeLine("ID  Task                         Created");
+        tasks.forEach((t, i) => {
+          if (!t.done) {
+            const id = (i + 1).toString().padEnd(3);
+            const desc = t.description.padEnd(28);
+            const created = formatRelativeTime(t.createdAt);
+            writeLine(`${id}${desc}${created}`);
+          }
+        });
+      }
       break;
     }
     case "complete": {
@@ -68,13 +84,18 @@ function handleCommand(cmd) {
       break;
     }
     case "help": {
-      writeLine("  A command-line application to manage tasks using a CSV-like store.");
-      writeLine("  Usage:");
-      writeLine("    goTasks add \"task description\"      Add a new task");
-      writeLine("    goTasks list                        List incomplete tasks");
-      writeLine("    goTasks list --all                 List all tasks");
-      writeLine("    goTasks complete <taskID>         Mark a task as complete");
-      writeLine("    goTasks delete <taskID>           Delete a task");
+      writeLine("A command-line application to manage tasks using a CSV file.\n");
+      writeLine("Usage:");
+      writeLine("  goTasks [flags]");
+      writeLine("  goTasks [command]\n");
+      writeLine("Available Commands:");
+      writeLine("  add         Add a new task");
+      writeLine("  complete    Mark a task as complete");
+      writeLine("  delete      Delete a task by ID");
+      writeLine("  help        Help about any command");
+      writeLine("  list        List all incomplete tasks (or all tasks with --all)\n");
+      writeLine("Flags:");
+      writeLine("  -h, --help   help for goTasks");
       break;
     }
     default: {
@@ -86,6 +107,15 @@ function handleCommand(cmd) {
 function writeLine(text) {
   output.innerHTML += text + "\n";
   window.scrollTo(0, document.body.scrollHeight);
+}
+
+function formatRelativeTime(date) {
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return "a few seconds ago";
+  if (diff < 3600) return "a minute ago";
+  if (diff < 86400) return "an hour ago";
+  return `${Math.floor(diff / 3600)} hours ago`;
 }
 
 // Initial tip
