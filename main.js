@@ -13,44 +13,73 @@ input.addEventListener("keydown", (e) => {
 function handleCommand(cmd) {
   writeLine(`$ ${cmd}`);
 
-  if (cmd.startsWith("goTasks add ")) {
-    const task = cmd.replace("goTasks add ", "").replace(/"/g, "");
-    tasks.push({ description: task, done: false });
-    writeLine(`  Task added: ${task}`);
-  } else if (cmd === "goTasks list") {
-    const list = tasks.filter((t) => !t.done);
-    if (list.length === 0) {
-      writeLine("  No tasks.");
-    } else {
-      list.forEach((t, i) => writeLine(`  ${i + 1}. ${t.description}`));
+  const parts = cmd.split(" ");
+  const mainCmd = parts[0];
+
+  if (mainCmd !== "goTasks") {
+    writeLine("  Command not recognized. Type 'goTasks help' to get started.");
+    return;
+  }
+
+  const subCmd = parts[1];
+
+  switch (subCmd) {
+    case "add": {
+      const description = cmd.split(" ").slice(2).join(" ").replace(/\"/g, "");
+      if (!description) {
+        writeLine("  Usage: goTasks add \"task description\"");
+        return;
+      }
+      tasks.push({ description, done: false, createdAt: new Date() });
+      writeLine(`  Task added: ${description}`);
+      break;
     }
-  } else if (cmd === "goTasks list -a" || cmd === "goTasks --all") {
-    if (tasks.length === 0) {
-      writeLine("  No tasks.");
-    } else {
+    case "list": {
+      const showAll = parts.includes("--all") || parts.includes("-a");
+      if (tasks.length === 0) {
+        writeLine("  No tasks.");
+        return;
+      }
       tasks.forEach((t, i) => {
-        const status = t.done ? "✓" : "✗";
-        writeLine(`  ${i + 1}. ${t.description} [${status}]`);
+        if (!showAll && t.done) return;
+        const status = showAll ? ` [${t.done ? "✓" : "✗"}]` : "";
+        writeLine(`  ${i + 1}. ${t.description}${status}`);
       });
+      break;
     }
-  } else if (cmd.startsWith("goTasks complete ")) {
-    const id = parseInt(cmd.split(" ")[2]) - 1;
-    if (!isNaN(id) && tasks[id]) {
+    case "complete": {
+      const id = parseInt(parts[2], 10) - 1;
+      if (isNaN(id) || !tasks[id]) {
+        writeLine("  Invalid task ID.");
+        return;
+      }
       tasks[id].done = true;
       writeLine(`  Task ${id + 1} marked as complete.`);
-    } else {
-      writeLine("  Invalid task ID.");
+      break;
     }
-  } else if (cmd.startsWith("goTasks delete ")) {
-    const id = parseInt(cmd.split(" ")[2]) - 1;
-    if (!isNaN(id) && tasks[id]) {
+    case "delete": {
+      const id = parseInt(parts[2], 10) - 1;
+      if (isNaN(id) || !tasks[id]) {
+        writeLine("  Invalid task ID.");
+        return;
+      }
       tasks.splice(id, 1);
       writeLine(`  Task ${id + 1} deleted.`);
-    } else {
-      writeLine("  Invalid task ID.");
+      break;
     }
-  } else {
-    writeLine("  Command not recognized.");
+    case "help": {
+      writeLine("  A command-line application to manage tasks using a CSV-like store.");
+      writeLine("  Usage:");
+      writeLine("    goTasks add \"task description\"      Add a new task");
+      writeLine("    goTasks list                        List incomplete tasks");
+      writeLine("    goTasks list --all                 List all tasks");
+      writeLine("    goTasks complete <taskID>         Mark a task as complete");
+      writeLine("    goTasks delete <taskID>           Delete a task");
+      break;
+    }
+    default: {
+      writeLine("  Unknown subcommand. Type 'goTasks help' to see usage.");
+    }
   }
 }
 
@@ -58,3 +87,7 @@ function writeLine(text) {
   output.innerHTML += text + "\n";
   window.scrollTo(0, document.body.scrollHeight);
 }
+
+// Initial tip
+writeLine("Type 'goTasks help' to get started.");
+
