@@ -17,7 +17,7 @@ function handleCommand(cmd) {
   const mainCmd = parts[0];
 
   if (mainCmd !== "goTasks") {
-    writeLine("  Command not recognized. Type 'goTasks help' to get started.");
+    writeLine("  Command not recognized. Type 'goTasks help' to get started.\n");
     return;
   }
 
@@ -37,7 +37,7 @@ function handleCommand(cmd) {
     case "list": {
       const showAll = parts.includes("--all") || parts.includes("-a");
       if (tasks.length === 0) {
-        writeLine("  No tasks.");
+        writeLine("  No tasks.\n");
         return;
       }
 
@@ -61,26 +61,27 @@ function handleCommand(cmd) {
           }
         });
       }
+      writeLine("")
       break;
     }
     case "complete": {
       const id = parseInt(parts[2], 10) - 1;
       if (isNaN(id) || !tasks[id]) {
-        writeLine("  Invalid task ID.");
+        writeLine("  Invalid task ID.\n");
         return;
       }
       tasks[id].done = true;
-      writeLine(`  Task ${id + 1} marked as complete.`);
+      writeLine(`  Task ${id + 1} marked as complete.\n`);
       break;
     }
     case "delete": {
       const id = parseInt(parts[2], 10) - 1;
       if (isNaN(id) || !tasks[id]) {
-        writeLine("  Invalid task ID.");
+        writeLine("  Invalid task ID.\n");
         return;
       }
       tasks.splice(id, 1);
-      writeLine(`  Task ${id + 1} deleted.`);
+      writeLine(`  Task ${id + 1} deleted.\n`);
       break;
     }
     case "help": {
@@ -99,7 +100,7 @@ function handleCommand(cmd) {
       break;
     }
     default: {
-      writeLine("  Unknown subcommand. Type 'goTasks help' to see usage.");
+      writeLine("  Unknown subcommand. Type 'goTasks help' to see usage.\n");
     }
   }
 }
@@ -119,5 +120,5 @@ function formatRelativeTime(date) {
 }
 
 // Initial tip
-writeLine("Type 'goTasks help' to get started.");
+writeLine("Type 'goTasks help' to get started.\n");
 
