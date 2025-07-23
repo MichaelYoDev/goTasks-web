@@ -45,8 +45,8 @@ function handleCommand(cmd) {
         writeLine("ID  Task                         Created            Done");
         tasks.forEach((t, i) => {
           const id = (i + 1).toString().padEnd(4);
-          const desc = t.description.padEnd(30);
-          const created = formatRelativeTime(t.createdAt).padEnd(20);
+          const desc = t.description.padEnd(29);
+          const created = formatRelativeTime(t.createdAt).padEnd(19);
           const done = t.done ? "true" : "false";
           writeLine(`${id}${desc}${created}${done}`);
         });
@@ -55,7 +55,7 @@ function handleCommand(cmd) {
         tasks.forEach((t, i) => {
           if (!t.done) {
             const id = (i + 1).toString().padEnd(4);
-            const desc = t.description.padEnd(30);
+            const desc = t.description.padEnd(29);
             const created = formatRelativeTime(t.createdAt);
             writeLine(`${id}${desc}${created}`);
           }
